@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+
+rails_py = File.expand_path("../../python/redash_rails/query_runner/rails.py", __FILE__)
+redash_root = ARGV[0]
+
+FileUtils.install(rails_py, File.join(redash_root, 'redash/query_runner/'), mode: 0644)
