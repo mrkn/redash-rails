@@ -1,8 +1,6 @@
-# Redash::Rails
+# Redash and Rails integration
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/redash/rails`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This library helps you to integrate re:dash and your Rails apps.
 
 ## Installation
 
@@ -22,7 +20,48 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Installing rails datasource
+
+Use `redash-rails-install` command.
+
+```console
+$ redash-rails-install $REDASH_ROOT_DIR
+```
+
+### Helper library for rails queries
+
+[lib/redash.rb](lib/redash.rb) provides helper functions to write queries.
+
+The following script is an example usage of these helper functions:
+
+```ruby
+require 'redash'
+include Redash
+
+result = {}
+
+add_result_column result, 'age', 'Age', 'integer'
+add_result_column result, 'survived_count', 'Survived count', 'integer'
+add_result_column result, 'dead_count', 'Dead count', 'integer'
+
+summary = Passenger.find_each.inject({}) do |h, pas|
+  if pas.age
+    age = (pas.age % 10) * 10
+    h[age] ||= []
+    h[age][pas.survived] ||= 0
+    h[age][pas.survived] += 1
+  end
+  h
+end
+
+summary.each do |age, age_summary|
+  add_result_row(result, age: age, survived_count: age_summary[1], dead_count: age_summary[0])
+end
+
+commit_to_redash(result)
+```
+
+See [mrkn/redash_rails_demon](https://github.com/mrkn/redash_rails_demo) repository for more details.
 
 ## Development
 
